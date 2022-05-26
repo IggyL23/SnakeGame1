@@ -58,14 +58,16 @@ class SnakeGame:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+
+            # DO NOT TOUCH, intentionally changed
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                if (event.key == pygame.K_LEFT or event.key == pygame.K_a) and self.direction != Direction.RIGHT:
                     self.direction = Direction.LEFT
-                elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+                elif (event.key == pygame.K_RIGHT or event.key == pygame.K_d) and self.direction != Direction.LEFT:
                     self.direction = Direction.RIGHT
-                elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
+                elif (event.key == pygame.K_DOWN or event.key == pygame.K_s) and self.direction != Direction.UP:
                     self.direction = Direction.DOWN
-                elif event.key == pygame.K_UP or event.key == pygame.K_w:
+                elif (event.key == pygame.K_UP or event.key == pygame.K_w) and self.direction != Direction.DOWN:
                     self.direction = Direction.UP
                 break
 
