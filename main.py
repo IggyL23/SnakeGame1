@@ -17,7 +17,7 @@ class Direction(Enum):
 Point = namedtuple("Point", "x, y")
 
 BLOCK_SIZE = 20
-SPEED = 10
+SPEED = 5
 
 BLACK = (0, 0, 0)
 RED = (200, 0, 0)
@@ -45,13 +45,13 @@ class SnakeGame:
         self._place_food()
 
     def _place_food(self):
-        x = random.randint(0, ((self.w - BLOCK_SIZE) // int(BLOCK_SIZE)) * BLOCK_SIZE)
-        y = random.randint(0, ((self.w - BLOCK_SIZE) // int(BLOCK_SIZE)) * BLOCK_SIZE)
+        x = random.randint(1, 31) *20
+        y = random.randint(1, 23) * 20
+
         self.food = Point(x, y)
 
         # check if this creates issues may have to change to self.head rather than snake NEVERMIND
-        if self.food in self.snake:
-            self._place_food()
+
 
     def play_step(self):
         for event in pygame.event.get():
@@ -79,7 +79,8 @@ class SnakeGame:
             game_over = True
             return game_over, self.score
 
-        if self.head == self.food:
+
+        if self.head == self.food and self.head != self.snake[1:]:
             self.score += 1
             self._place_food()
         else:
@@ -93,7 +94,7 @@ class SnakeGame:
     def _is_collision(self):
         if self.head.x > self.w - BLOCK_SIZE or self.head.x < 0 or self.head.y > self.h - BLOCK_SIZE or self.head.y < 0:
             return True
-        if self.head in self.snake[1:]:
+        if self.head == self.snake[1:]:
             return True
 
         return False
