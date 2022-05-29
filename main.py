@@ -77,7 +77,7 @@ class SnakeGame:
         game_over = False
         if self._is_collision():
             game_over = True
-            return game_over, self.score
+            return game_over
 
 
         if self.head == self.food and self.head != self.snake[1:]:
@@ -89,13 +89,19 @@ class SnakeGame:
         self._update_ui()
         self.clock.tick(SPEED)
 
-        return game_over, self.score
+        return game_over
 
     def _is_collision(self):
         if self.head.x > self.w - BLOCK_SIZE or self.head.x < 0 or self.head.y > self.h - BLOCK_SIZE or self.head.y < 0:
+            print("glglllg")
             return True
-        if self.head == self.snake[1:]:
-            return True
+        pt_counter = 0
+        for pt in self.snake:
+            if pt_counter != 0:
+                if self.head.x == pt.x and self.head.y == pt.y:
+                    print("whhwhwh")
+                    return True
+            pt_counter = pt_counter +1
 
         return False
 
@@ -108,8 +114,7 @@ class SnakeGame:
 
         pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
 
-        text = font.render("Score: " + str(self.score), True, WHITE)
-        self.display.blit(text, [0, 0])
+
         pygame.display.flip()
 
     def _move(self, direction):
@@ -132,10 +137,10 @@ if __name__ == '__main__':
 
     while True:
         game_over = game.play_step()
-        score = game.play_step()
+        #score = game.play_step()
         if game_over == True:
             break
 
-    print("Final Score", score)
+    #print("Final Score", score)
 
     pygame.quit()
