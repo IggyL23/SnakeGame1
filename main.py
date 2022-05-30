@@ -93,13 +93,11 @@ class SnakeGame:
 
     def _is_collision(self):
         if self.head.x > self.w - BLOCK_SIZE or self.head.x < 0 or self.head.y > self.h - BLOCK_SIZE or self.head.y < 0:
-            print("glglllg")
             return True
         pt_counter = 0
         for pt in self.snake:
             if pt_counter != 0:
                 if self.head.x == pt.x and self.head.y == pt.y:
-                    print("whhwhwh")
                     return True
             pt_counter = pt_counter +1
 
