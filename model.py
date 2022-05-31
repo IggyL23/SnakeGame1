@@ -1,3 +1,4 @@
+import numpy
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -34,8 +35,10 @@ class QTrainer:
         self.criterion = nn.MSELoss()
 
     def train_step(self, state, action, reward, next_state, game_over):
-        state = torch.tensor(state, dtype=torch.float)
-        next_state = torch.tensor(next_state, dtype=torch.float)
+        state_arr = numpy.array(state)
+        next_state_arr = numpy.array(next_state)
+        state = torch.tensor(state_arr, dtype=torch.float)
+        next_state = torch.tensor(next_state_arr, dtype=torch.float)
         action = torch.tensor(action, dtype=torch.long)
         reward = torch.tensor(reward, dtype=torch.float)
 
@@ -44,7 +47,7 @@ class QTrainer:
             next_state = torch.unsqueeze(next_state, 0)
             action = torch.unsqueeze(action, 0)
             reward = torch.unsqueeze(reward, 0)
-            game_over = (game_over, )
+            game_over = (game_over,)
 
         # Bellman Equation
         pred = self.model(state)
@@ -60,9 +63,8 @@ class QTrainer:
             # Loss Equation
             self.optimizer.zero_grad()
             loss = self.criterion(target, pred)
-            loss.backward() # FIXME
+            loss.backward(retain_graph=True)  # FIXME
 
             self.optimizer.step()
-
-
+            break
 

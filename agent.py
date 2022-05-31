@@ -17,7 +17,7 @@ class Agent:
         self.epsilon = 0  # randomness
         self.gamma = 0.9  # must be <1
         self.memory = deque(maxlen=MAX_MEMORY)
-        self.model = LinearQNet(11, 256, 3)  # what
+        self.model = LinearQNet(11, 256, 3)  # original = 256
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
     def get_state(self, game):

@@ -3,6 +3,7 @@ import random
 from enum import Enum
 from collections import namedtuple
 import numpy as np
+import math
 
 pygame.init()
 font = pygame.font.Font("IBM.ttf", 25)
@@ -20,7 +21,7 @@ class Direction(Enum):
 Point = namedtuple("Point", "x, y")
 
 BLOCK_SIZE = 20
-SPEED = 20
+SPEED = 40
 
 BLACK = (0, 0, 0)
 RED = (200, 0, 0)
@@ -52,29 +53,33 @@ class SnakeGameAI:
         self.frame_iteration = 0
 
     def _place_food(self):
-        x = random.randint(1, 31) * 20
-        y = random.randint(1, 23) * 20
+        while True:
 
-        self.food = Point(x, y)
+            x = random.randint(1, 31) * 20
+            y = random.randint(1, 23) * 20
+
+            self.food = Point(x, y)
+
+            if not self.inside_snake(self.food):
+                break
 
         # check if this creates issues may have to change to self.head rather than snake NEVERMIND
 
     def play_step(self, action):
         self.frame_iteration += 1
-
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-
+        """
         self._move(action)
         self.snake.insert(0, self.head)
 
         reward = 0
 
         game_over = False
-        if self.is_collision() or self.frame_iteration > 100*len(self.snake):
-            # FIXME: possible issue here may need to be changed to -=
+        if self.is_collision():
             game_over = True
             reward = -10
             return reward, game_over, self.score
@@ -82,7 +87,7 @@ class SnakeGameAI:
         if self.head == self.food and self.head != self.snake[1:]:
             self.score += 1
             # FIXME: possible issue here may need to be changed to +=
-            reward = 10
+            reward = 100
             self._place_food()
         else:
             self.snake.pop()
@@ -126,9 +131,9 @@ class SnakeGameAI:
         clock_wise = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
         idx = clock_wise.index(self.direction)
 
-        if np.array_equal(action, [1,0,0]):
+        if np.array_equal(action, [1, 0, 0]):
             new_dir = clock_wise[idx]
-        elif np.array_equal(action, [0,1,0]):
+        elif np.array_equal(action, [0, 1, 0]):
             next_idx = (idx + 1) % 4
             new_dir = clock_wise[next_idx]
         else:
@@ -149,5 +154,16 @@ class SnakeGameAI:
 
         self.head = Point(x, y)
 
+    def inside_snake(self, pt):
+        pt_counter = 0
+        for i in self.snake:
+            if pt_counter != 0:
+                if pt.x == i.x and pt.y == i.y:
+                    return True
+            pt_counter += 1
 
-
+    def distance(self):
+        x = abs(self.head.x - self.food.x)
+        y = abs(self.head.y - self.food.y)
+        d = math.sqrt(x ** 2 + y ** 2)
+        return d
