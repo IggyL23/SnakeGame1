@@ -31,11 +31,6 @@ WHITE = (255, 255, 255)
 
 class SnakeGameAI:
     def __init__(self, w=640, h=480):
-        self.direction = None
-        self.head = None
-        self.snake = None
-        self.score = None
-        self.food = None
         self.w = w
         self.h = h
 
@@ -71,18 +66,6 @@ class SnakeGameAI:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-
-            # DO NOT TOUCH, intentionally changed
-            if event.type == pygame.KEYDOWN:
-                if (event.key == pygame.K_LEFT or event.key == pygame.K_a) and self.direction != Direction.RIGHT:
-                    self.direction = Direction.LEFT
-                elif (event.key == pygame.K_RIGHT or event.key == pygame.K_d) and self.direction != Direction.LEFT:
-                    self.direction = Direction.RIGHT
-                elif (event.key == pygame.K_DOWN or event.key == pygame.K_s) and self.direction != Direction.UP:
-                    self.direction = Direction.DOWN
-                elif (event.key == pygame.K_UP or event.key == pygame.K_w) and self.direction != Direction.DOWN:
-                    self.direction = Direction.UP
-                break
 
         self._move(action)
         self.snake.insert(0, self.head)
