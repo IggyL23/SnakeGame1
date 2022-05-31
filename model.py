@@ -68,3 +68,4 @@ class QTrainer:
             self.optimizer.step()
             break
 
+

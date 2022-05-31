@@ -10,6 +10,7 @@ MAX_MEMORY = 100000
 BATCH_SIZE = 1000
 LR = 0.001
 
+
 class Agent:
 
     def __init__(self):
@@ -63,12 +64,16 @@ class Agent:
             game.food.x > game.head.x,
             game.food.y < game.head.y,
             game.food.y > game.head.y
+
+
+
         ]
 
         return np.array(state, dtype=int)
 
     def remember(self, state, action, reward, next_state, game_over):
         self.memory.append((state, action, reward, next_state, game_over))
+        #rint(self.memory)
 
     def train_long_mem(self):
         if len(self.memory) > BATCH_SIZE:

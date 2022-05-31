@@ -21,7 +21,7 @@ class Direction(Enum):
 Point = namedtuple("Point", "x, y")
 
 BLOCK_SIZE = 20
-SPEED = 40
+SPEED = 50
 
 BLACK = (0, 0, 0)
 RED = (200, 0, 0)
@@ -42,8 +42,10 @@ class SnakeGameAI:
         self.reset()
 
     def reset(self):
+        # initial direction
         self.direction = Direction.RIGHT
 
+        # start head position
         self.head = Point(self.w / 2, self.h / 2)
         self.snake = [self.head, Point(self.head.x - BLOCK_SIZE, self.head.y),
                       Point(self.head.x - (2 * BLOCK_SIZE), self.head.y)]
@@ -51,6 +53,7 @@ class SnakeGameAI:
         self.food = None
         self._place_food()
         self.frame_iteration = 0
+        self.last_head = Point(None, None)
 
     def _place_food(self):
         while True:
@@ -66,13 +69,9 @@ class SnakeGameAI:
         # check if this creates issues may have to change to self.head rather than snake NEVERMIND
 
     def play_step(self, action):
+
         self.frame_iteration += 1
-        """
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-        """
+
         self._move(action)
         self.snake.insert(0, self.head)
 
@@ -81,20 +80,34 @@ class SnakeGameAI:
         game_over = False
         if self.is_collision():
             game_over = True
-            reward = -10
+            reward = -30
+            self.last_head = self.head
+            return reward, game_over, self.score
+        elif self.frame_iteration > 60 * len(self.snake):
+            game_over = True
+            reward = -200
+            self.last_head = self.head
             return reward, game_over, self.score
 
+        # compares value of current head to last head to determine if snake is moving in the direction of the food and
+        # rewards it accordingly
+        if self.distance(self.head) < self.distance(self.last_head) and self.last_head.x is not None:
+            reward = ((640-self.distance(self.head))//(self.score+1*0.5))*0.01
+
+        # Checks if food is eaten by snake
         if self.head == self.food and self.head != self.snake[1:]:
             self.score += 1
             # FIXME: possible issue here may need to be changed to +=
-            reward = 100
+            reward = 10*(self.score+1)
             self._place_food()
+            self.last_head = self.head
+        # If food is not eaten by snake pop the part of the snake.
         else:
             self.snake.pop()
 
         self._update_ui()
         self.clock.tick(SPEED)
-
+        self.last_head = self.head
         return reward, game_over, self.score
 
     def is_collision(self, pt=None):
@@ -103,12 +116,13 @@ class SnakeGameAI:
 
         if pt.x > self.w - BLOCK_SIZE or pt.x < 0 or pt.y > self.h - BLOCK_SIZE or pt.y < 0:
             return True
-        pt_counter = 0
 
         # FIXME: possible issue here as I added a new parameter "pt" which may interfere with this loop
-        for pt in self.snake:
+        # checks if the head intersects with a part of the snake
+        pt_counter = 0
+        for i in self.snake:
             if pt_counter != 0:
-                if self.head.x == pt.x and self.head.y == pt.y:
+                if self.head.x == i.x and self.head.y == i.y:
                     return True
             pt_counter += 1
 
@@ -123,6 +137,8 @@ class SnakeGameAI:
 
         pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
 
+        text = font.render("Score: " + str(self.score), True, WHITE)
+        self.display.blit(text, [0, 0])
         pygame.display.flip()
 
     def _move(self, action):
@@ -162,8 +178,11 @@ class SnakeGameAI:
                     return True
             pt_counter += 1
 
-    def distance(self):
-        x = abs(self.head.x - self.food.x)
-        y = abs(self.head.y - self.food.y)
+    def distance(self, pt):
+        if pt.x is None or pt.y is None:
+            return 200
+        x = abs(pt.x - self.food.x)
+        y = abs(pt.y - self.food.y)
         d = math.sqrt(x ** 2 + y ** 2)
+        #print(d, pt, self.food)
         return d
