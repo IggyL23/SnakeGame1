@@ -18,7 +18,7 @@ class Agent:
         self.epsilon = 0  # randomness
         self.gamma = 0.9  # must be <1
         self.memory = deque(maxlen=MAX_MEMORY)
-        self.model = LinearQNet(11, 256, 3)  # original = 256
+        self.model = LinearQNet(14, 256, 3)  # original = 256
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
     def get_state(self, game):
@@ -52,6 +52,23 @@ class Agent:
             (dir_u and game.is_collision(point_l)) or
             (dir_r and game.is_collision(point_u)) or
             (dir_l and game.is_collision(point_d)),
+
+            (dir_r and game.is_collision_bod(point_r)) or
+            (dir_l and game.is_collision_bod(point_l)) or
+            (dir_u and game.is_collision_bod(point_u)) or
+            (dir_d and game.is_collision_bod(point_d)),
+
+            # danger right
+            (dir_u and game.is_collision_bod(point_r)) or
+            (dir_d and game.is_collision_bod(point_l)) or
+            (dir_l and game.is_collision_bod(point_u)) or
+            (dir_r and game.is_collision_bod(point_d)),
+
+            # danger left
+            (dir_d and game.is_collision_bod(point_r)) or
+            (dir_u and game.is_collision_bod(point_l)) or
+            (dir_r and game.is_collision_bod(point_u)) or
+            (dir_l and game.is_collision_bod(point_d)),
 
             # we like to move it move it
             dir_l,

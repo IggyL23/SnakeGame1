@@ -26,8 +26,15 @@ SPEED = 50
 BLACK = (0, 0, 0)
 RED = (200, 0, 0)
 BLUE1 = (0, 0, 255)
-BLUE2 = (0, 100, 255)
+TURQUOISE = (0, 255, 255)
 WHITE = (255, 255, 255)
+PINK = (255, 51, 255)
+GREEN = (0, 255, 0)
+YELLOW = (255, 255, 0)
+PURPLE = (127, 0, 255)
+
+
+
 
 
 class SnakeGameAI:
@@ -44,6 +51,8 @@ class SnakeGameAI:
     def reset(self):
         # initial direction
         self.direction = Direction.RIGHT
+
+        self.color = rando_col()
 
         # start head position
         self.head = Point(self.w / 2, self.h / 2)
@@ -83,6 +92,13 @@ class SnakeGameAI:
             reward = -30
             self.last_head = self.head
             return reward, game_over, self.score
+
+        elif self.is_collision_bod():
+            game_over = True
+            reward = -50
+            self.last_head = self.head
+            return reward, game_over, self.score
+
         elif self.frame_iteration > 60 * len(self.snake):
             game_over = True
             reward = -200
@@ -92,13 +108,13 @@ class SnakeGameAI:
         # compares value of current head to last head to determine if snake is moving in the direction of the food and
         # rewards it accordingly
         if self.distance(self.head) < self.distance(self.last_head) and self.last_head.x is not None:
-            reward = ((640-self.distance(self.head))//(self.score+1*0.5))*0.01
+            reward = ((640 - self.distance(self.head)) // (self.score + 1 * 0.5)) * 0.01
 
         # Checks if food is eaten by snake
         if self.head == self.food and self.head != self.snake[1:]:
             self.score += 1
             # FIXME: possible issue here may need to be changed to +=
-            reward = 10*(self.score+1)
+            reward = 10 * (self.score + 1)
             self._place_food()
             self.last_head = self.head
         # If food is not eaten by snake pop the part of the snake.
@@ -116,13 +132,19 @@ class SnakeGameAI:
 
         if pt.x > self.w - BLOCK_SIZE or pt.x < 0 or pt.y > self.h - BLOCK_SIZE or pt.y < 0:
             return True
+        return False
 
         # FIXME: possible issue here as I added a new parameter "pt" which may interfere with this loop
         # checks if the head intersects with a part of the snake
+
+    def is_collision_bod(self, pt=None):
+        if pt is None:
+            pt = self.head
+
         pt_counter = 0
         for i in self.snake:
             if pt_counter != 0:
-                if self.head.x == i.x and self.head.y == i.y:
+                if pt.x == i.x and pt.y == i.y:
                     return True
             pt_counter += 1
 
@@ -132,8 +154,8 @@ class SnakeGameAI:
         self.display.fill(BLACK)
 
         for pt in self.snake:
-            pygame.draw.rect(self.display, BLUE1, pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
-            pygame.draw.rect(self.display, BLUE1, pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
+            pygame.draw.rect(self.display, self.color, pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
+            pygame.draw.rect(self.display, self.color, pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
 
         pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
 
@@ -184,5 +206,11 @@ class SnakeGameAI:
         x = abs(pt.x - self.food.x)
         y = abs(pt.y - self.food.y)
         d = math.sqrt(x ** 2 + y ** 2)
-        #print(d, pt, self.food)
+        # print(d, pt, self.food)
         return d
+
+
+def rando_col():
+    col_arr = [BLUE1, WHITE, PINK, TURQUOISE, YELLOW, GREEN, PURPLE]
+    rand_idx = random.randint(0, len(col_arr)-1)
+    return col_arr[rand_idx]
